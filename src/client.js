@@ -174,11 +174,10 @@ module.exports = class Client extends EventEmitter {
       message = decrypt(object, this._credentials.keys);
     } catch (error) {
       switch (true) {
-        case error.message.includes(
-          'Unsupported state or unable to authenticate data'
-        ):
+        case error.message.includes('Unsupported state or unable to authenticate data'):
         case error.message.includes('crypto-key is missing'):
         case error.message.includes('salt is missing'):
+        case error.message.includes('Public key is not valid for specified curve'):
           // NOTE(ibash) Periodically we're unable to decrypt notifications. In
           // all cases we've been able to receive future notifications using the
           // same keys. So, we silently drop this notification.
