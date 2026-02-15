@@ -177,13 +177,18 @@ module.exports = class Client extends EventEmitter {
         case error.message.includes('Unsupported state or unable to authenticate data'):
         case error.message.includes('crypto-key is missing'):
         case error.message.includes('salt is missing'):
-        case error.message.includes('Public key is not valid for specified curve'):
           // NOTE(ibash) Periodically we're unable to decrypt notifications. In
           // all cases we've been able to receive future notifications using the
           // same keys. So, we silently drop this notification.
           console.warn(
             'Message dropped as it could not be decrypted: ' + error.message
           );
+          this._persistentIds.push(object.persistentId);
+          return;
+        case error.message.includes('Public key is not valid for specified curve'):
+          // These errors began to happen in mass around Feb 6, 2026.
+          // We haven't been able to identify the root cause, but they don't seem to be recoverable.
+          console.warn('Public key is not valid for specified curve', object);
           this._persistentIds.push(object.persistentId);
           return;
         default: {
