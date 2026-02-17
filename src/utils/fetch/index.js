@@ -5,6 +5,8 @@ const { waitFor } = require('../timeout');
 const MAX_RETRY_TIMEOUT = 15;
 // Step in seconds
 const RETRY_STEP = 5;
+// Maximum number of retries
+const MAX_RETRIES = 5;
 
 module.exports = { fetchWithRetry, fetch };
 
@@ -26,8 +28,21 @@ function fetchWithRetry(...args) {
 async function retry(retryCount = 0, ...args) {
   try {
     const result = await fetch(...args);
+
+    if (!result.ok && result.status >= 500 && retryCount < MAX_RETRIES) {
+      const timeout = Math.min(retryCount * RETRY_STEP, MAX_RETRY_TIMEOUT);
+      console.error(`Request failed with status ${result.status}: ${result.statusText}`);
+      console.error(`Retrying in ${timeout} seconds`);
+      await waitFor(timeout * 1000);
+      return retry(retryCount + 1, ...args);
+    }
+
     return result;
   } catch (e) {
+    if (retryCount >= MAX_RETRIES) {
+      throw e;
+    }
+
     const timeout = Math.min(retryCount * RETRY_STEP, MAX_RETRY_TIMEOUT);
     console.error(`Request failed : ${e.message}`);
     console.error(`Retrying in ${timeout} seconds`);

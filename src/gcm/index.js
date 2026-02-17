@@ -85,7 +85,7 @@ async function postRegister({ androidId, securityToken, body, retry = 0 }) {
     if (retry >= 5) {
       throw new Error('GCM register has failed');
     }
-    console.warn(`Retry... ${retry + 1}`);
+    console.info(`Retry... ${retry + 1}`);
     await waitFor(1000);
     return postRegister({ androidId, securityToken, body, retry : retry + 1 });
   }
