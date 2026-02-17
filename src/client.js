@@ -188,7 +188,7 @@ module.exports = class Client extends EventEmitter {
         case error.message.includes('Public key is not valid for specified curve'):
           // These errors began to happen in mass around Feb 6, 2026.
           // We haven't been able to identify the root cause, but they don't seem to be recoverable.
-          console.warn('Public key is not valid for specified curve', object);
+          console.warn('Public key is still not valid for specified curve', object);
           this._persistentIds.push(object.persistentId);
           return;
         default: {
